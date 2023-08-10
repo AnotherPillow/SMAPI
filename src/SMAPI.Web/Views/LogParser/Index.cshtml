@@ -248,76 +248,76 @@ else if (log?.IsValid == true)
         {
             <h2>Suggested fixes</h2>
             <ul id="fix-list">
-                @if (errorHandler is null && log.ApiVersionParsed?.IsNewerThan("3.8.4") is true)
+                @if (errorHandler is null && !log.GameVersion.ToLower().Contains("Android Unix"))
                 {
-                    <li class="important">You don't have the <strong>Error Handler</strong> mod installed. This automatically prevents many game or mod errors. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to re-add it.</li>
+                <li class="important">You don't have the <strong>Error Handler</strong> mod installed. This automatically prevents many game or mod errors. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to re-add it.</li>
                 }
                 @if (hasOlderErrorHandler)
                 {
-                    <li>Your <strong>Error Handler</strong> mod is older than SMAPI. You may be missing some game/mod error fixes. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to update it.</li>
+                <li>Your <strong>Error Handler</strong> mod is older than SMAPI. You may be missing some game/mod error fixes. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to update it.</li>
                 }
                 @if (isPyTkCompatibilityMode)
                 {
                     if (log.IsStrictMode)
                     {
-                        <li>PyTK's image scaling isn't compatible with SMAPI strict mode.</li>
+                <li>PyTK's image scaling isn't compatible with SMAPI strict mode.</li>
                     }
                     else
                     {
-                        <li>PyTK 1.23.* or earlier isn't compatible with newer SMAPI performance optimizations. This may increase loading times or in-game lag.</li>
+                <li>PyTK 1.23.* or earlier isn't compatible with newer SMAPI performance optimizations. This may increase loading times or in-game lag.</li>
                     }
                 }
                 @if (outdatedMods.Any())
                 {
-                    <li>
-                        Consider updating these mods to fix problems:
+                <li>
+                    Consider updating these mods to fix problems:
 
-                        <table id="updates" class="table">
-                            @foreach (LogModInfo mod in log.Mods.Where(mod => (mod.HasUpdate && !mod.IsContentPack) || (contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
+                    <table id="updates" class="table">
+                        @foreach (LogModInfo mod in log.Mods.Where(mod => (mod.HasUpdate && !mod.IsContentPack) || (contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList) && contentPackList.Any(pack => pack.HasUpdate))))
                             {
-                                <tr class="mod-entry">
-                                    <td>
-                                        <strong class=@(!mod.HasUpdate ? "hidden" : "")>@mod.Name</strong>
-                                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList))
+                        <tr class="mod-entry">
+                            <td>
+                                <strong class=@(!mod.HasUpdate ? "hidden" : "")>@mod.Name</strong>
+                                @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out LogModInfo[]? contentPackList))
                                         {
-                                            <div class="content-packs">
-                                                @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
+                                <div class="content-packs">
+                                    @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
                                                 {
-                                                    <text>+ @contentPack.Name</text><br />
+                                    <text>+ @contentPack.Name</text><br />
                                                 }
-                                            </div>
+                                </div>
                                         }
-                                    </td>
-                                    <td>
-                                        @if (mod.HasUpdate)
+                            </td>
+                            <td>
+                                @if (mod.HasUpdate)
                                         {
-                                            <a href="@mod.UpdateLink" target="_blank">
-                                                @(mod.Version == null ? mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
-                                            </a>
+                                <a href="@mod.UpdateLink" target="_blank">
+                                    @(mod.Version == null ? mod.UpdateVersion : $"{mod.Version} → {mod.UpdateVersion}")
+                                </a>
                                         }
                                         else
                                         {
-                                            <text>&nbsp;</text>
+                                <text>&nbsp;</text>
                                         }
 
-                                        @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
+                                @if (contentPacks != null && contentPacks.TryGetValue(mod.Name, out contentPackList))
                                         {
-                                            <div>
-                                                @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
+                                <div>
+                                    @foreach (LogModInfo contentPack in contentPackList.Where(pack => pack.HasUpdate))
                                                 {
-                                                    <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br />
+                                    <a href="@contentPack.UpdateLink" target="_blank">@contentPack.Version → @contentPack.UpdateVersion</a><br />
                                                 }
-                                            </div>
+                                </div>
                                         }
-                                    </td>
-                                </tr>
+                            </td>
+                        </tr>
                             }
-                        </table>
-                    </li>
+                    </table>
+                </li>
                 }
                 @if (log.IsStrictMode)
                 {
-                    <li class="notice">SMAPI is running in 'strict mode', which removes all deprecated APIs. This can significantly improve performance, but some mods may not work. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to disable it if you run into problems.</li>
+                <li class="notice">SMAPI is running in 'strict mode', which removes all deprecated APIs. This can significantly improve performance, but some mods may not work. You can <a href="https://stardewvalleywiki.com/Modding:Player_Guide#Install_SMAPI">reinstall SMAPI</a> to disable it if you run into problems.</li>
                 }
             </ul>
         }
