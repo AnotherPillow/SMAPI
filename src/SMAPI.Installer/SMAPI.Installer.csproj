@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SMAPI.Toolkit\SMAPI.Toolkit.csproj" />
+    <PackageReference Include="VdfConverter" Version="1.0.3" Condition="'$(OS)' == 'Windows_NT'" Private="False" />
+    <PackageReference Include="Gameloop.Vdf" Version="0.6.2" />
   </ItemGroup>
 
   <ItemGroup>

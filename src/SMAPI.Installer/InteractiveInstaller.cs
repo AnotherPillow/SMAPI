@@ -32,6 +32,8 @@ namespace StardewModdingApi.Installer
             "SMAPI.ConsoleCommands"
         };
 
+        private GameDistributor? Distributor = null;
+
         /// <summary>Get the absolute file or folder paths to remove when uninstalling SMAPI.</summary>
         /// <param name="installDir">The folder for Stardew Valley and SMAPI.</param>
         /// <param name="modsDir">The folder for SMAPI mods.</param>
@@ -249,6 +251,11 @@ namespace StardewModdingApi.Installer
                     this.AwaitConfirmation(allowUserInput);
                     return;
                 }
+
+                if (installDir.FullName.Contains("Steam")) this.Distributor = GameDistributor.Steam;
+                else if (installDir.FullName.Contains("GOG") || installDir.FullName.Contains("Galaxy")) this.Distributor = GameDistributor.GOG;
+                else if (installDir.FullName.Contains("ModifiableWindowsApps")) this.Distributor = GameDistributor.Microsoft;
+                else this.Distributor = GameDistributor.Unknown;
 
                 // get folders
                 DirectoryInfo bundleDir = new(this.BundlePath);
@@ -516,19 +523,59 @@ namespace StardewModdingApi.Installer
 
 
             /*********
-            ** Step 7: final instructions
+            ** Step 7: final instructions and optionally configure launch options
             *********/
             if (context.IsWindows)
             {
                 if (action == ScriptAction.Install)
                 {
-                    this.PrintSuccess("SMAPI is installed! If you use Steam, set your launch options to enable achievements (see smapi.io/install):");
-                    this.PrintSuccess($"    \"{Path.Combine(paths.GamePath, "StardewModdingAPI.exe")}\" %command%");
-                    Console.WriteLine();
-                    this.PrintSuccess("If you don't use Steam, launch StardewModdingAPI.exe in your game folder to play with mods.");
+                    this.PrintSuccess("SMAPI is installed!");
+                    if (this.Distributor == GameDistributor.Steam) // TODO: FIX THIS!! THIS IS FOR DEBUGGING. THIS SHOULD BE ==
+                    {
+                        this.PrintSuccess("Steam isn't configured to launch SMAPI yet. To configure it automatically, enter 1 below");
+                        Console.WriteLine();
+                        this.PrintInfo("[1] Automatically configure Steam to launch SMAPI.");
+                        this.PrintInfo("[2] Configure Steam manually later.");
+                        string choice = this.InteractivelyChoose("Type 1 or 2, then press enter.", new[] { "1", "2" });
+
+                        switch (choice)
+                        {
+                            case "1":
+                                SteamIntegration integration = new(this.ConsoleWriter);
+                                this.PrintSuccess("Steam must be fully closed to continue. Press 1 once it is fully closed.");
+                                Console.WriteLine();
+
+                                this.PrintInfo("[1] Steam is closed!");
+                                this.PrintInfo("[2] Exit automatic Steam configuration.");
+
+                                string steamchoice = integration.InteractivelyAwaitSteamClose("Type 1 when Steam is closed, or 2 to continue without.", new[] { "1", "2" });
+                                if (steamchoice != "1") break;
+                                Console.WriteLine();
+
+                                string newLaunchOption = $"\"{Path.Combine(paths.GamePath, "StardewModdingAPI.exe")}\" %command%";
+                                integration.ModifyLaunchOptions(newLaunchOption);
+
+                                this.PrintSuccess("Steam has been configured to launch SMAPI.");
+
+                                break;
+
+                            case "2":
+                                this.PrintSuccess("Set your launch options to enable achievements (see smapi.io/install):");
+                                this.PrintSuccess($"    \"{Path.Combine(paths.GamePath, "StardewModdingAPI.exe")}\" %command%");
+                                break;
+
+                            default:
+                                throw new InvalidOperationException($"Unexpected action key '{choice}'.");
+                        }
+
+                        Console.WriteLine();
+                    } else {
+                        this.PrintSuccess("Launch StardewModdingAPI.exe in your game folder to play with mods.");
+                    }
                 }
                 else
                     this.PrintSuccess("SMAPI is removed! If you configured Steam to launch SMAPI, don't forget to clear your launch options.");
+                
             }
             else
             {
